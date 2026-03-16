@@ -25,6 +25,7 @@ export default defineUserConfig({
             '/algorithm/README.md',
             '/algorithm/链表.md',
             '/algorithm/数组.md',
+            '/algorithm/查找.md',
             '/algorithm/双指针.md',
             '/algorithm/字符串.md',
             '/algorithm/树与图.md',
