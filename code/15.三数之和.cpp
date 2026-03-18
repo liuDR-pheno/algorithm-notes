@@ -30,3 +30,31 @@ class Solution {
             return res;
         }
     };
+    //3.18复习
+    class Solution {
+        public:
+            vector<vector<int>> threeSum(vector<int>& nums) {
+                int n=nums.size();
+                sort(nums.begin(),nums.end());
+                vector<vector<int>> ans;
+                for(int i=0;i<n;i++){
+                    int l=i+1;
+                    int r=n-1;
+                    if(i!=0&&nums[i]==nums[i-1]) continue;//去重，重复的直接删掉
+                    while(l<r){
+                        int t=nums[i]+nums[l]+nums[r];
+                        if(t<0) l++;
+                        else if(t>0) r--;
+                        else{
+                            ans.push_back({nums[i],nums[l],nums[r]});
+                            //注意！也许还有等于零的情况呢，rl也得动，而且！动的时候还得去重
+                            while(l<r&&nums[l+1]==nums[l]) l++;
+                            while(l<r&&nums[r-1]==nums[r]) r--;
+                            r--;
+                            l++;
+                        }
+                    }
+                }
+                return ans;
+            }
+        };
