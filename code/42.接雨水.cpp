@@ -55,3 +55,41 @@ class Solution {
                 return ans;
             }
         };
+
+//3.19重新刷
+class Solution {
+    public:
+        int trap(vector<int>& h) {
+            int n=h.size();
+            vector<int> left,right(n);
+            //创建数组，存放当前格子的左侧最大和右侧最大
+            int height=h[0];
+            for(int i=0;i<n;i++){
+                int t=h[i];
+                if(t>height){
+                    height=t;
+                }
+                left.push_back(height);
+            }
+            int he=h[h.size()-1];
+            for(int i=n-1;i>=0;i--){
+                int t=h[i];
+                if(t>he){
+                    he=t;
+                }
+                right[i]=he;
+            }
+            //计算雨水面积
+            int ans=0;
+            for(int i=1;i<n-1;i++){
+                int l=left[i];
+                int r=right[i];
+                int k=min(l,r);
+                if(h[i]>=k) continue;
+                else{
+                    ans+=(k-h[i]);
+                }
+            }
+            return ans;
+        }
+    };
