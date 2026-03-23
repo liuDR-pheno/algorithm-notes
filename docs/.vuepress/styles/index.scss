@@ -1,0 +1,52 @@
+// VuePress 2 默认主题只会加载 `.vuepress/styles/*.scss`（官方约定）。
+// 本文件用于覆盖主题的 accent 色以及一些基础观感优化（更丝滑）。
+
+html {
+  scroll-behavior: smooth;
+}
+
+:root {
+  // 全站主色（用于首页按钮、强调色、代码 Tab 等）
+  --vp-c-accent: #2563eb;
+  --vp-c-accent-bg: #3b82f6;
+  --vp-c-accent-hover: #1d4ed8;
+  --vp-c-accent-text: var(--vp-c-white);
+  --vp-c-accent-soft: rgb(37 99 235 / 14%);
+}
+
+[data-theme='dark'] {
+  // 暗色模式也保持蓝色 accent
+  --vp-c-accent: #60a5fa;
+  --vp-c-accent-bg: #3b82f6;
+  --vp-c-accent-hover: #93c5fd;
+  --vp-c-accent-soft: rgb(59 130 246 / 16%);
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// 内容区观感优化：行高、代码块圆角与间距
+.theme-default-content {
+  p {
+    line-height: 1.85;
+  }
+
+  pre {
+    border-radius: 12px;
+    padding: 12px 16px;
+    overflow: auto;
+  }
+
+  pre code {
+    font-size: 0.95em;
+    line-height: 1.6;
+  }
+
+  table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+}
+

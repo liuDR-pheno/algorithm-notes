@@ -2,8 +2,11 @@
 home: true
 title: 首页
 actions:
-  - text: 开始刷题
+  - text: 算法刷题记录
     link: /algorithm/
+    type: primary
+  - text: 数据库
+    link: /database/
     type: primary
 
 footer: 算法刷题笔记 · 坚持刷题，提升算法能力
@@ -22,8 +25,8 @@ footer: 算法刷题笔记 · 坚持刷题，提升算法能力
 - [字符串](/algorithm/字符串.md) - 最长回文子串、有效括号、反转单词顺序等
 - [树与图](/algorithm/树与图.md) - 二叉树深度、反转二叉树、岛屿面积等
 - [动态规划](/algorithm/动态规划.md) - 爬楼梯、杨辉三角、编辑距离、不同路径等
-- [手写题](/algorithm/手写题.md) - bind、Promise、发布订阅、深拷贝等
 - [其他](/algorithm/其他.md) - 分发糖果、只出现一次的数字、计数质数等
+- [数据库](/database/) - 表/索引/查询等数据库基础知识
 
 ## 说明
 
