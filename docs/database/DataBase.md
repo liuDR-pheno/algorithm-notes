@@ -264,9 +264,9 @@ WHERE Cname like 'DB\_%I__'ESCAPE'\';
 
 ##### 5)空值查询
 
-使用谓词IS NULL或者IS NOT NULL
+使用谓词`IS NULL`或者`IS NOT NULL`
 
-​		或者=NULL
+​		或者`=NULL`
 
 ```mysql
 //某些学生选修课程后没有参加考试，所以有选课记录，但没有考试成绩。查询缺少成绩的学生的学号和相应的课程号。
@@ -275,9 +275,89 @@ FROM SC
 WHERE GRADE IS NULL;
 ```
 
+##### 6)多重条件查询
+
+用`AND`和`or`连接，前者优先级更高
+
 ### 4.3对查询结果排序
+
+使用`ORDER BY`子句
+
+即`ORDER BY <属性列> [DESC/ASC]`
+
+升序：ASC；降序：DESC；缺省值为升序
+
+含有空值的时候：（空值最大） ASC：排序列为空值的元组最后显示 ，DESC：排序列为空值的元组最先显示 
+
+```mysql
+//查询选修了3号课程的学生的学号及其成绩，查询结果按分数降序排列。
+SELECT Sno,GRADE
+FROM SC
+WHERE Cno='3'
+ORDER BY GRADE DESC;
+//查询全体学生情况，查询结果按所在系的系号升序排列，同一系中的学生按年龄降序排列。
+SELECT *
+FROM S
+ORDER BY Sdept,Sage DESC;
+```
 
 ### 4.4使用集函数
 
+**集函数放在select后面**
+
+–计数 `COUNT（[DISTINCT|ALL] *） COUNT（[DISTINCT|ALL] <列名>） `
+
+–计算总和` SUM（[DISTINCT|ALL] <列名>）`  
+
+– 计算平均值 `AVG（[DISTINCT|ALL] <列名>）`
+
+–求最大值` MAX（[DISTINCT|ALL] <列名> `
+
+–求最小值` MIN（[DISTINCT|ALL] <列名> `
+
+– DISTINCT短语：在计算时要取消指定列中的重复值 
+
+– ALL短语：不取消重复值 – ALL为缺省值
+
+```mysql
+//计算1号课程的学生平均成绩。
+SELECT AVG(Grade)
+FROM SC
+WHERE Cno='1';
+//查询选修1号课程的学生最高分数。
+SELECT MAX(Grade)
+FROM SC
+WHERE Cno='1';
+```
+
 ### 4.5对查询结果分组
+
+使用`GROUP BY`子句
+
+注意集函数的作用对象：**未**对查询结果分组，集函数将作用于**整个查询结果** ；对查询结果分组后，集函数将**分别作用于每个组** 
+
+```mysql
+//求各个课程号及相应的选课人数。
+SELECT Cno,COUNT(Sno)
+FROM SC
+GROUP BY Cno ;
+```
+
+输出的结果就是每个课程号的选课人数
+
+**使用`HAVING`短语筛选最终输出结果**
+
+```mysql
+//查询选修了3门以上课程的学生学号。
+SELECT Sno
+FROM SC
+GROUP BY Sno
+HAVING COUNT(*)>3;//这里的count计算的是每个学生分组后，学习表中选课记录
+//查询有3门以上课程是90分以上的学生的学号及（90分以上的）课程数
+SELECT Sno,COUNT(*)
+FROM SC
+WHERE Grade>90
+GROUP BY Sno
+HAVING COUNT(Cno)>3;
+```
 
