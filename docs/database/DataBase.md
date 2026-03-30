@@ -283,7 +283,7 @@ WHERE GRADE IS NULL;
 
 使用`ORDER BY`子句
 
-即`ORDER BY <属性列> [DESC/ASC]`
+即`ORDER BY <属性列> [DESC/ASC]` 
 
 升序：ASC；降序：DESC；缺省值为升序
 
@@ -305,15 +305,15 @@ ORDER BY Sdept,Sage DESC;
 
 **集函数放在select后面**
 
-–计数 `COUNT（[DISTINCT|ALL] *） COUNT（[DISTINCT|ALL] <列名>） `
+–计数 `COUNT（[DISTINCT|ALL] *） COUNT（[DISTINCT|ALL] <列名>）` 
 
-–计算总和` SUM（[DISTINCT|ALL] <列名>）`  
+–计算总和 `SUM（[DISTINCT|ALL] <列名>）`  
 
 – 计算平均值 `AVG（[DISTINCT|ALL] <列名>）`
 
-–求最大值` MAX（[DISTINCT|ALL] <列名> `
+–求最大值`MAX（[DISTINCT|ALL] <列名>`
 
-–求最小值` MIN（[DISTINCT|ALL] <列名> `
+–求最小值`MIN（[DISTINCT|ALL] <列名>`
 
 – DISTINCT短语：在计算时要取消指定列中的重复值 
 
@@ -361,3 +361,305 @@ GROUP BY Sno
 HAVING COUNT(Cno)>3;
 ```
 
+## 5.连接查询
+
+不带连接谓词的连接，相当于做了笛卡尔积运算，很少使用
+
+```mysql
+SELECT S.* , SC.*
+FROM S, SC；
+```
+
+### 5.1、等值与非等值连接查询
+
+• **等值连接**：连接运算符为 = 的连接操作
+
+eg:` WHERE S.Sno=CS.Sno `
+
+注意：当这两个属性相同的时候，需要加表名前缀。也就是上面的写法。
+
+• **自然连接**：等值连接的一种特殊情况，把目标列中重复的属性 列去掉。
+
+使用`join on`语句
+
+```mysql
+//查询学生及其选修课程的情况 （用自然连接完成）。
+SELECT S.Sno，Sname，Ssex，Sage，Sdept，Cno，Grade
+FROM S join SC ON S.Sno = SC.Sno；
+```
+
+• **非等值连接**：略
+
+### 5.2.自身连接
+
+ •  一个表与其自己进行连接，称为表的自身连接；
+
+ • 需要给表起别名以示区别；
+
+ • 由于所有属性名都是同名属性，因此必须使用别名前缀。
+
+```mysql
+//查询每一门课的间接先修课（即先修课的先修课）
+SELECT FIRST.Cno，SECOND.Cpno
+FROM C as FIRST，C as SECOND
+WHERE FIRST.Cpno = SECOND.Cno；
+```
+
+### 5.3外连接
+
+外连接操作以指定表为连接主体，将主体表中不满足连接条件的元组一并输出
+
+`OUTER JOIN`语句，左侧加上LEFT/RIGHT来确定主表。
+
+`FULL (OUTER) JOIN <表名> ON <条件>;`同时以左右表为主体构建
+
+```mysql
+//查询每个学生及其选修课程的情况包括没有选修课程的学生
+SELECT *
+FROM S LEFT OUTER JOIN SC ON S.Sno=SC.Sno;
+```
+
+## 6.复合条件连接
+
+where语句中含有多个连接条件
+
+### 6.1 多表连接
+
+```mysql
+//查询每个学生的学号、姓名、选修的课程名及成绩。
+SELECT S.Sno,Sname,Cname,Grade
+FROM (S JOIN SC ON S.SNO=SC.SNO) JOIN C ON SC.CNO=C.CNO;
+//查询平均分高于90分的学生的学号、姓名以及它的平均分，并按照平均分降序排列
+SELECT S.SNO,SNAME,AVE(GRADE) AS AVEGRADE
+FROM S JOIN SC ON S.SNO=SC.SNO
+GROUP BY S.SNO,SNAME
+HAVING AVE(GRADE)>90
+ORDER BY GRADE DESC;
+```
+
+### 6.2 TOP/LIMIT谓词
+
+```mysql
+//查询成绩前五名的学生姓名，课程名及成绩。
+//SQL server语法
+SELECT TOP 5 SNAME,CNAME,GRADE
+FROM (S join SC on S.SNO=SC.SNO) join C on SC.CNO=C.CNO
+ORDER BY GARDE DESC
+//MYSQL语法
+SELECT SNAME, CNAME, GRADE
+FROM S 
+JOIN SC ON S.SNO = SC.SNO
+JOIN C ON SC.CNO = C.CNO
+ORDER BY GRADE DESC
+LIMIT 5;
+```
+
+
+
+## 7.集合查询    
+
+### 7.1 并操作(UNION)   
+
+`<查询块>`
+
+`UNION`
+
+`<查询块>`
+
+ps：参加UNION操作的各结果表的列数必须相同；对应项的数据类型也必须相同
+
+### 7.2 交操作(INTERSECT)
+
+### 7.3 差操作(EXCEPT) 
+
+ps:注意！！order by只能对最终查询排序，所以他只出现在最后。
+
+```mysql
+//查询计算机科学系年龄不大于19岁的学生，并按学号降序排列
+(SELECT *
+FROM S
+WHERE SDEPT='CS')
+INTERSECT
+(SELECT *
+FROM S
+WHERE SAGE<=19)
+ORDER BY SNO DESC;
+```
+
+
+
+## 8.嵌套查询    
+
+select-from-where是一个查询块，在where/having里面的查询称为嵌套查询。
+
+我们称外层查询为父查询，内层为子查询。
+
+```mysql
+//查询选修了2号课程的学生姓名。
+SELECT SNAME
+FROM S
+WHERE SNO IN
+(SELECT SNO
+FROM SC
+WHERE CNO='2');
+```
+
+对子查询的限制：不能使用order by子句。
+
+### 8.1 带有IN谓词的子查询    
+
+```mysql
+//查询与“刘晨”在同一个系学习的学生。
+SELECT SNO,SNAME
+FROM S
+WHERE SDEPT IN
+(SELECT SDEPT
+FROM S
+WHERE SNAME='刘晨');
+
+//查询选修了课程名为“信息系统”的学生学号和姓名
+SELECT SNO,SNAME
+FROM S
+WHERE SNO IN
+(SELECT SNO
+FROM SC
+WHERE CNO IN
+(SELECT CNO
+FROM C
+WHERE CNAME='信息系统'));
+//也可以直接连接查询
+SELECT SNO,SNAME
+FROM S,SC,C
+WHERE S.SNO=SC.SNO AND SC.CNO=C.CNO AND C.CNAME='信息系统';
+
+```
+
+
+
+### 8.2 带有比较运算符的子查询   
+
+元素只有一个的时候，可以用=替代in
+
+### 8.3 带有ANY或ALL谓词的子查询    
+
+– ANY：某一个值
+
+– ALL：所有值
+
+使用集函数比any/all语句效率更高，前者可以减少比较次数。
+
+```mysql
+//查询其他系中比信息系其中某一个(任意一个)学生年龄小的学生姓名和年龄
+SELECT SNAME,SAGE
+FROM S
+WHERE SAGE<ANY(SELECT SAGE
+              FROM S
+              WHERE SDEPT='IS')
+AND SDEPT!='IS';
+//集函数实现
+SELECT SNAME,SAGE
+FROM S
+WHERE SAGE<(SELECT MAX(SAGE)
+           FROM S
+           WHERE SDEPT='IS')
+AND SDEPT!='IS';      
+
+//找出课程平均成绩最高的课程号
+SELECT CNO
+FROM SC
+WHERE GRADE>=ALL(SELECT AVE(GRADE)
+                FROM SC
+                GROUP BY CNO);
+```
+
+注意！！在SQL中**聚集函数是不能嵌套**的，即max（avg（…））
+
+### 8.4 带有EXISTS谓词的子查询
+
+#### 8.4.1.EXISTS谓词
+
+– 存在量词
+
+– 带有EXISTS谓词的子查询**不返回任何数据**，只产生逻辑真值“true”或逻辑假值“false”。
+
+●若内层查询结果非空，则返回真值
+
+●若内层查询结果为空，则返回假值
+
+由EXISTS引出的子查询，其目标列表达式通常都用* ，因为带EXISTS的子查询只返回真值或假值，给出列名无实际意义。
+
+```mysql
+//查询所有选修了1号课程的学生姓名。
+SELECT SNAME
+FROM S
+WHERE EXISTS (SELECT *
+             FROM SC
+             WHERE CNO='1' AND SNO=S.SNO);//别忘了要创建两个表之间的连接
+```
+
+流程：
+
+- 在S中依次取每个元组的Sno值，用此值去检查SC关系。
+
+- 若SC中存在这样的元组，其Sno值等于此S.Sno值，并且其Cno=‘1’，则保留此S.Sname存入结果关系中。
+
+  ```mysql
+  //查询没有选修1号课程的学生姓名。
+  SELECT SNAME
+  FROM S
+  WHERE NOT EXISTS (SELECT *
+                   FROM SC
+                   WHERE SNO=S.SNO AND CNO='1');
+                   
+  //查询与“刘晨”在同一个系学习的学生。可以用带EXISTS谓词的子查询替换：
+  SELECT SNO,SNAME
+  FROM S AS S1
+  WHERE EXISTS (SELECT *
+               FROM S AS S2
+               WHERE S2.SNAME='刘晨' AND S1.SDEPT=S2.SDEPT);
+  ```
+
+  **所有**带IN谓词、比较运算符、ANY和ALL谓词的子查询**都能用带EXISTS**谓词的子查询等价替换。
+
+  #### 8.4.2用EXISTS/NOT EXISTS实现全称量词
+
+  eg：**查询选修了全部课程的学生姓名。**
+
+  思路：
+
+  构建某个学生所选修的课程集合，记为A； 
+
+  构建全部的课程集合，记为B； 
+
+  某个学生选修了A的全部课程，可以表示为：**¬(B-A)** 也就是，如果这个学生选了全部课程，那么B-A之后应该是空集。
+
+  ```mysql
+  //除法表示方法1 用except
+  SELECT SNAME
+  FROM S
+  WHERE NOT EXISTS((SELECT CNO
+                   FROM C)
+                  EXCEPT
+                  (SELECT CNO
+                  FROM SC
+                  WHERE S.SNO=SC.SNO));
+  //表示方法2 用not exists
+  SELECT S.SNAME
+  FROM S
+  WHERE NOT EXISTS (
+      -- 外层子查询：遍历所有课程
+      SELECT *
+      FROM C
+      WHERE NOT EXISTS (
+          -- 内层子查询：检查当前学生是否选修了这门课
+          SELECT *
+          FROM SC
+          WHERE SC.SNO = S.SNO
+            AND SC.CNO = C.CNO
+      )
+  );
+  ```
+
+  
+
+## 9.数据更新    9.1 插入数据    9.2 修改数据    9.3 删除数据 10.空值的处理 11.视图    11.1 定义视图    11.2 查询视图    11.3 更新视图    11.4 视图的作用
